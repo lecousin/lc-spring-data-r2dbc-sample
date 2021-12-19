@@ -19,4 +19,6 @@ public interface UserService {
 	
 	Mono<UserDto> getUser(String username);
 	
+	Mono<Void> initDatabase();
+	
 }

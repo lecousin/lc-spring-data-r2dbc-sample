@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
@@ -13,6 +14,7 @@ import net.lecousin.reactive.data.relational.repository.LcR2dbcRepositoryFactory
 
 @Configuration
 @EnableR2dbcRepositories(repositoryFactoryBeanClass = LcR2dbcRepositoryFactoryBean.class, basePackages = "com.example.auth.dao.repository", entityOperationsRef = "authOperations")
+@EnableScheduling
 public class AuthConfig extends LcR2dbcEntityOperationsBuilder {
 
 	@Bean

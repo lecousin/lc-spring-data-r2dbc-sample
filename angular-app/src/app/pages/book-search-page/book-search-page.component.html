@@ -1,0 +1,69 @@
+<app-loading *ngIf="isLoadingResults" message="Loading books"></app-loading>
+
+<mat-expansion-panel hideToggle expanded="true" class="filters">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <div style="display: flex; flex-direction: row; align-items: center">
+        <mat-icon>filter_list</mat-icon>
+        <div>Filters</div>
+      </div>
+    </mat-panel-title>
+    <mat-panel-description>
+      Book search criteria
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <mat-form-field>
+    <mat-label>Book title</mat-label>
+    <input matInput [(ngModel)]="filter.bookTitle" (ngModelChange)="search()">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Author name</mat-label>
+    <input matInput [(ngModel)]="filter.authorName" (ngModelChange)="search()">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Publisher name</mat-label>
+    <input matInput [(ngModel)]="filter.publisherName" (ngModelChange)="search()">
+  </mat-form-field>
+</mat-expansion-panel>
+
+<div class="table-container">
+
+  <table mat-table [dataSource]="results$"
+    matSort matSortActive="created" matSortDisableClear matSortDirection="desc"
+    (matSortChange)="resetPaging()">
+
+    <!-- Title Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <td mat-cell *matCellDef="let row">{{row.title}}</td>
+    </ng-container>
+
+    <!-- Year Column -->
+    <ng-container matColumnDef="year">
+      <th mat-header-cell *matHeaderCellDef>Year</th>
+      <td mat-cell *matCellDef="let row">{{row.year}}</td>
+    </ng-container>
+
+    <!-- Authors Column -->
+    <ng-container matColumnDef="authors">
+      <th mat-header-cell *matHeaderCellDef>Authors</th>
+      <td mat-cell *matCellDef="let row">
+        <span *ngFor="let author of row.authors; let index = index">
+          <span *ngIf="index > 0">, </span>
+          {{author.name}}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Publisher Column -->
+    <ng-container matColumnDef="publisher">
+      <th mat-header-cell *matHeaderCellDef>Publisher</th>
+      <td mat-cell *matCellDef="let row">{{row.publisher?.name}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

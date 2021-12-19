@@ -1,0 +1,23 @@
+<div class="app-header-title">
+  <mat-icon>menu_book</mat-icon>
+  <div>Example Book Application</div>
+</div>
+<div class="app-header-menu">
+
+</div>
+<div class="app-header-account">
+  {{username}}
+  <button mat-mini-fab color="primary" [matMenuTriggerFor]="accountMenu" style="margin: 5px 0px 5px 5px;">
+    <mat-icon>manage_accounts</mat-icon>
+  </button>
+  <mat-menu #accountMenu="matMenu">
+    <div style="text-align: center; margin: 2px 10px 5px 10px;">
+      {{ username }}
+    </div>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Sign out</span>
+    </button>
+  </mat-menu>
+</div>

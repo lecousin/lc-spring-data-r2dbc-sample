@@ -2,18 +2,18 @@ package com.example.book.service.dto;
 
 public class BookSearchRequest {
 
-	private String bookName;
+	private String bookTitle;
 	private String authorName;
 	private String publisherName;
 	private Integer yearFrom;
 	private Integer yearTo;
 
-	public String getBookName() {
-		return bookName;
+	public String getBookTitle() {
+		return bookTitle;
 	}
 
-	public void setBookName(String bookName) {
-		this.bookName = bookName;
+	public void setBookTitle(String bookTitle) {
+		this.bookTitle = bookTitle;
 	}
 
 	public String getAuthorName() {

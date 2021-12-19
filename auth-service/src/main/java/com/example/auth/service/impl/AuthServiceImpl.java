@@ -4,14 +4,14 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.auth.dao.model.Session;
@@ -29,8 +29,6 @@ import reactor.util.function.Tuples;
 @Service
 public class AuthServiceImpl implements AuthService {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
-
 	@Autowired
 	private UserService userService;
 	
@@ -68,6 +66,20 @@ public class AuthServiceImpl implements AuthService {
 		}).map(tuple -> createDto(tuple.getT1(), tuple.getT2()));
 	}
 	
+	@Override
+	public Mono<SessionDto> renewSession(SessionDto session) {
+		return sessionRepo.findById(session.getUuid())
+			.flatMap(s -> {
+				s.setExpiration(Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES));
+				return sessionRepo.save(s);
+			}).map(s -> updateDto(session, s));
+	}
+	
+	@Override
+	public Mono<Void> closeSession(SessionDto session) {
+		return sessionRepo.deleteById(session.getUuid());
+	}
+	
 	private Mono<Session> createSession(UserDto user) {
 		Session session = new Session();
 		session.setUsername(user.getUsername());
@@ -81,6 +93,16 @@ public class AuthServiceImpl implements AuthService {
 		dto.setUsername(user.getUsername());
 		dto.setExpiration(session.getExpiration().toEpochMilli());
 		return dto;
+	}
+	
+	private static SessionDto updateDto(SessionDto dto, Session entity) {
+		dto.setExpiration(entity.getExpiration().toEpochMilli());
+		return dto;
+	}
+	
+	@Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+	public void removeExpiredSessions() {
+		sessionRepo.deleteByExpirationLessThan(Instant.now()).subscribe();
 	}
 
 }

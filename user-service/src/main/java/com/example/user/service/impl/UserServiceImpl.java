@@ -6,8 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -32,20 +30,12 @@ public class UserServiceImpl implements UserService {
 	@Qualifier("userOperations")
 	private LcR2dbcEntityTemplate template;
 	
-	@PostConstruct
-	public void initDatabase() {
-		Mono<Void> createDatabase;
-		if (System.getProperty("createDatabase") != null) {
-			RelationalDatabaseSchema schema = template.getLcClient().buildSchemaFromEntities(Arrays.asList(User.class));
-			createDatabase = template.getLcClient().createSchemaContent(schema);
-		} else {
-			createDatabase = Mono.empty();
-		}
-		createDatabase.then(
-			userRepo.findByUsername("test")
-			.map(UserServiceImpl::dto)
-			.switchIfEmpty(Mono.defer(() -> createUser("test", "test")))
-		).subscribe();
+	@Override
+	public Mono<Void> initDatabase() {
+		RelationalDatabaseSchema schema = template.getLcClient().buildSchemaFromEntities(Arrays.asList(User.class));
+		return template.getLcClient().dropCreateSchemaContent(schema)
+			.then(createUser("test", "test"))
+			.then();
 	}
 	
 	@Override

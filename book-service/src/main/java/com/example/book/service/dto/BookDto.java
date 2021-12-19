@@ -1,6 +1,5 @@
 package com.example.book.service.dto;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.example.book.dao.model.Book;
@@ -8,55 +7,19 @@ import com.example.book.dao.model.Book;
 public class BookDto {
 
 	private Long id;
-	private String name;
+	private String title;
 	private Integer year;
-	private List<Author> authors;
-	private Publisher publisher;
+	private List<AuthorDto> authors;
+	private PublisherDto publisher;
 	
-	public static class Author {
-		private Long id;
-		private String name;
-
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-		
+	public BookDto() {
 	}
 	
-	public static class Publisher {
-		private Long id;
-		private String name;
-
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-		
+	public BookDto(String title, Integer year) {
+		this.title = title;
+		this.year = year;
 	}
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -65,12 +28,12 @@ public class BookDto {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public Integer getYear() {
@@ -81,42 +44,35 @@ public class BookDto {
 		this.year = year;
 	}
 
-	public List<Author> getAuthors() {
+	public List<AuthorDto> getAuthors() {
 		return authors;
 	}
 
-	public void setAuthors(List<Author> authors) {
+	public void setAuthors(List<AuthorDto> authors) {
 		this.authors = authors;
 	}
 
-	public Publisher getPublisher() {
+	public PublisherDto getPublisher() {
 		return publisher;
 	}
 
-	public void setPublisher(Publisher publisher) {
+	public void setPublisher(PublisherDto publisher) {
 		this.publisher = publisher;
 	}
 	
 	public static BookDto fromEntity(Book entity) {
 		BookDto dto = new BookDto();
 		dto.setId(entity.getId());
-		dto.setName(entity.getTitle());
+		dto.setTitle(entity.getTitle());
 		dto.setYear(entity.getYear());
-		if (entity.getAuthors() != null) {
-			dto.setAuthors(new LinkedList<>());
-			for (com.example.book.dao.model.Author a : entity.getAuthors()) {
-				Author adto = new Author();
-				adto.setId(a.getId());
-				adto.setName(a.getName());
-				dto.getAuthors().add(adto);
-			}
-		}
-		if (entity.getPublisher() != null) {
-			Publisher p = new Publisher();
-			p.setId(entity.getPublisher().getId());
-			p.setName(entity.getPublisher().getName());
-			dto.setPublisher(p);
-		}
+		dto.setAuthors(AuthorDto.fromEntities(entity.getAuthors()));
+		dto.setPublisher(PublisherDto.fromEntity(entity.getPublisher()));
 		return dto;
+	}
+	
+	public Book toEntity(Book entity) {
+		entity.setTitle(getTitle());
+		entity.setYear(getYear());
+		return entity;
 	}
 }

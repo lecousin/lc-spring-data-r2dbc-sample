@@ -12,4 +12,8 @@ public interface AuthService {
 	
 	Mono<SessionDto> checkSession(UUID uuid, String username);
 	
+	Mono<SessionDto> renewSession(SessionDto session);
+	
+	Mono<Void> closeSession(SessionDto session);
+	
 }

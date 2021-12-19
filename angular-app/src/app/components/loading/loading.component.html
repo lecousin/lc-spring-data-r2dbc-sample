@@ -1,0 +1,5 @@
+<mat-spinner [mode]="todo > 0 ? 'determinate' : 'indeterminate'" [value]="done * 100 / todo" *ngIf="type === 'spinner'"></mat-spinner>
+<div *ngIf="type === 'progress'" class='progress-bar-container'>
+  <mat-progress-bar [mode]="todo > 0 ? 'determinate' : 'indeterminate'" [value]="done * 100 / todo"></mat-progress-bar>
+</div>
+<div class="message" *ngIf="message">{{message}}</div>

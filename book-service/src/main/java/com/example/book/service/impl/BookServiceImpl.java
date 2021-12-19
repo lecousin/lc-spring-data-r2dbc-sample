@@ -2,8 +2,8 @@ package com.example.book.service.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
-
-import javax.annotation.PostConstruct;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,14 @@ import org.springframework.stereotype.Service;
 import com.example.book.dao.model.Author;
 import com.example.book.dao.model.Book;
 import com.example.book.dao.model.Publisher;
+import com.example.book.dao.repository.AuthorRepository;
+import com.example.book.dao.repository.BookRepository;
+import com.example.book.dao.repository.PublisherRepository;
 import com.example.book.service.BookService;
+import com.example.book.service.dto.AuthorDto;
 import com.example.book.service.dto.BookDto;
 import com.example.book.service.dto.BookSearchRequest;
+import com.example.book.service.dto.PublisherDto;
 
 import net.lecousin.reactive.data.relational.query.SelectQuery;
 import net.lecousin.reactive.data.relational.query.criteria.Criteria;
@@ -31,35 +36,37 @@ public class BookServiceImpl implements BookService {
 	@Qualifier("bookOperations")
 	private LcR2dbcEntityTemplate template;
 	
-	@PostConstruct
-	public void initDatabase() {
-		if (System.getProperty("createDatabase") != null) {
-			RelationalDatabaseSchema schema = template.getLcClient().buildSchemaFromEntities(Arrays.asList(Book.class, Author.class, Publisher.class));
-			template.getLcClient().createSchemaContent(schema)
-			.then(Mono.defer(() -> {
-				Author a1 = new Author();
-				a1.setName("John Smith");
-				Author a2 = new Author();
-				a2.setName("William Miller");
-				Publisher p1 = new Publisher();
-				p1.setName("My Editor");
-				Publisher p2 = new Publisher();
-				p2.setName("Other Editor");
-				Book b1 = new Book();
-				b1.setTitle("My first book");
-				b1.setAuthors(new HashSet<>(Arrays.asList(a1)));
-				b1.setPublisher(p1);
-				Book b2 = new Book();
-				b2.setTitle("Second one");
-				b2.setAuthors(new HashSet<>(Arrays.asList(a1, a2)));
-				Book b3 = new Book();
-				b3.setTitle("Another");
-				b3.setAuthors(new HashSet<>(Arrays.asList(a2)));
-				b3.setPublisher(p2);
-				return template.getLcClient().saveAll(a1, a2, p1, p2, b1, b2, b3);
-			}))
-			.subscribe();
-		}
+	@Autowired
+	private BookRepository bookRepo;
+	
+	@Autowired
+	private AuthorRepository authorRepo;
+	
+	@Autowired
+	private PublisherRepository publisherRepo;
+
+	@Override
+	public Mono<Void> initDatabase() {
+		RelationalDatabaseSchema schema = template.getLcClient().buildSchemaFromEntities(Arrays.asList(Book.class, Author.class, Publisher.class));
+		return template.getLcClient().dropCreateSchemaContent(schema)
+		.then(
+			Mono.zip(
+				createAuthor(new AuthorDto("John Smith")),
+				createAuthor(new AuthorDto("William Miller")),
+				createPublisher(new PublisherDto("My Editor")),
+				createPublisher(new PublisherDto("Other Editor"))
+			).flatMap(tuple -> {
+				BookDto book1 = new BookDto("My first book", 1970);
+				book1.setAuthors(Arrays.asList(tuple.getT1()));
+				book1.setPublisher(tuple.getT3());
+				BookDto book2 = new BookDto("Second one", null);
+				book2.setAuthors(Arrays.asList(tuple.getT1(), tuple.getT2()));
+				BookDto book3 = new BookDto("Another", 2011);
+				book3.setAuthors(Arrays.asList(tuple.getT2()));
+				book3.setPublisher(tuple.getT4());
+				return Mono.when(createBook(book1), createBook(book2), createBook(book3));
+			})
+		);
 	}
 	
 	@Override
@@ -67,8 +74,8 @@ public class BookServiceImpl implements BookService {
 		SelectQuery<Book> query = SelectQuery.from(Book.class, "book")
 			.join("book", "authors", "author")
 			.join("book", "publisher", "publisher");
-		if (!StringUtils.isBlank(searchRequest.getBookName()))
-			query = query.where(Criteria.property("book", "title").like('%' + searchRequest.getBookName() + '%'));
+		if (!StringUtils.isBlank(searchRequest.getBookTitle()))
+			query = query.where(Criteria.property("book", "title").like('%' + searchRequest.getBookTitle() + '%'));
 		if (searchRequest.getYearFrom() != null)
 			query = query.where(Criteria.property("book", "year").greaterOrEqualTo(searchRequest.getYearFrom()));
 		if (searchRequest.getYearTo() != null)
@@ -78,6 +85,38 @@ public class BookServiceImpl implements BookService {
 		if (!StringUtils.isBlank(searchRequest.getPublisherName()))
 			query = query.where(Criteria.property("publisher", "name").like('%' + searchRequest.getPublisherName() + '%'));
 		return query.execute(template.getLcClient()).map(BookDto::fromEntity);
+	}
+	
+	@Override
+	public Mono<AuthorDto> createAuthor(AuthorDto author) {
+		return Mono.just(author).map(dto -> dto.toEntity(new Author())).flatMap(authorRepo::save).map(AuthorDto::fromEntity);
+	}
+	
+	@Override
+	public Mono<PublisherDto> createPublisher(PublisherDto publisher) {
+		return Mono.just(publisher).map(dto -> dto.toEntity(new Publisher())).flatMap(publisherRepo::save).map(PublisherDto::fromEntity);
+	}
+	
+	@Override
+	public Mono<BookDto> createBook(BookDto book) {
+		Flux<Author> authors;
+		if (book.getAuthors() == null)
+			authors = Flux.empty();
+		else
+			authors = authorRepo.findAllById(book.getAuthors().stream().map(author -> author.getId()).collect(Collectors.toList()));
+		Mono<Optional<Publisher>> publisher;
+		if (book.getPublisher() == null)
+			publisher = Mono.just(Optional.empty());
+		else
+			publisher = publisherRepo.findById(book.getPublisher().getId()).map(Optional::of).switchIfEmpty(Mono.just(Optional.empty()));
+		return Mono.zip(authors.collectList(), publisher)
+		.flatMap(tuple -> {
+			Book b = book.toEntity(new Book());
+			b.setAuthors(new HashSet<>(tuple.getT1()));
+			if (tuple.getT2().isPresent())
+				b.setPublisher(tuple.getT2().get());
+			return bookRepo.save(b);
+		}).map(BookDto::fromEntity);
 	}
 
 }
