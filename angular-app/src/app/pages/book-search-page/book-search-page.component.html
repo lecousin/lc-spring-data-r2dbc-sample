@@ -15,15 +15,15 @@
 
   <mat-form-field>
     <mat-label>Book title</mat-label>
-    <input matInput [(ngModel)]="filter.bookTitle" (ngModelChange)="search()">
+    <input matInput [(ngModel)]="filter.bookTitle" (ngModelChange)="criteriaUpdated()">
   </mat-form-field>
   <mat-form-field>
     <mat-label>Author name</mat-label>
-    <input matInput [(ngModel)]="filter.authorName" (ngModelChange)="search()">
+    <input matInput [(ngModel)]="filter.authorName" (ngModelChange)="criteriaUpdated()">
   </mat-form-field>
   <mat-form-field>
     <mat-label>Publisher name</mat-label>
-    <input matInput [(ngModel)]="filter.publisherName" (ngModelChange)="search()">
+    <input matInput [(ngModel)]="filter.publisherName" (ngModelChange)="criteriaUpdated()">
   </mat-form-field>
 </mat-expansion-panel>
 
@@ -67,3 +67,4 @@
   </table>
 
 </div>
+<mat-paginator [length]="count" [pageSize]="10" (page)="search(false)"></mat-paginator>

@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.book.service.BookService;
-import com.example.book.service.dto.BookDto;
 import com.example.book.service.dto.BookSearchRequest;
+import com.example.book.service.dto.BookSearchResponse;
 
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/book/v1")
@@ -20,7 +20,7 @@ public class BookController {
 	private BookService bookService;
 	
 	@PostMapping("/search")
-	public Flux<BookDto> searchBooks(@RequestBody BookSearchRequest request) {
+	public Mono<BookSearchResponse> searchBooks(@RequestBody BookSearchRequest request) {
 		return bookService.searchBooks(request);
 	}
 

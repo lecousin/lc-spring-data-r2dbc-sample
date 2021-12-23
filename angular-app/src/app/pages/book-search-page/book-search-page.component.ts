@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Book } from 'src/app/data/book';
@@ -9,24 +11,51 @@ import { BookSearchRequest, BookService } from 'src/app/service/book.service';
   templateUrl: './book-search-page.component.html',
   styleUrls: ['./book-search-page.component.scss']
 })
-export class BookSearchPageComponent {
+export class BookSearchPageComponent implements AfterViewInit {
 
   displayedColumns = ['title', 'year', 'authors', 'publisher'];
   isLoadingResults = true;
   filter = new BookSearchRequest();
   results$ = new BehaviorSubject<Book[]>([]);
+  count = 0;
+
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
+  @ViewChild(MatSort) sort?: MatSort;
 
   constructor(
     private bookService: BookService
   ) {
-    this.search();
   }
 
-  public search() {
+  ngAfterViewInit(): void {
+    this.search(true);
+    this.sort?.sortChange.subscribe(() => {
+      if (this.paginator) {
+        this.paginator.pageIndex = 0;
+        this.search(false);
+      }
+    });
+  }
+
+  public criteriaUpdated(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+      this.search(true);
+    }
+  }
+
+  public search(updateCount: boolean) {
     this.isLoadingResults = true;
-    this.bookService.searchBooks(this.filter).subscribe(books => {
+    this.filter.countTotal = updateCount;
+    if (this.paginator) {
+      this.filter.offset = this.paginator.pageIndex * this.paginator.pageSize;
+      this.filter.limit = this.paginator.pageSize;
+    }
+    this.bookService.searchBooks(this.filter).subscribe(response => {
       this.isLoadingResults = false;
-      this.results$.next(books);
+      if (response.count !== undefined && response.count !== null)
+        this.count = response.count;
+      this.results$.next(response.books);
     });
   }
 

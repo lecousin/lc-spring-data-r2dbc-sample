@@ -7,11 +7,21 @@ import { Book } from '../data/book';
 
 export class BookSearchRequest {
 
+  public offset?: number;
+  public limit?: number;
+  public countTotal = true;
+
   public bookTitle?: string;
   public authorName?: string;
   public publisherName?: string;
   public yearFrom?: number;
   public yearTo?: number;
+
+}
+
+export class BookSearchResponse {
+
+  constructor(public books: Book[], public count?: number) {}
 
 }
 
@@ -24,9 +34,9 @@ export class BookService {
     private http: HttpClient
   ) { }
 
-  public searchBooks(request: BookSearchRequest): Observable<Book[]> {
-    return this.http.post<Book[]>(environment.apiUrl + '/book/v1/search', request).pipe(
-      map(books => books.map(book => new Book(book)))
+  public searchBooks(request: BookSearchRequest): Observable<BookSearchResponse> {
+    return this.http.post<BookSearchResponse>(environment.apiUrl + '/book/v1/search', request).pipe(
+      map(response => new BookSearchResponse(response.books.map(book => new Book(book)), response.count))
     );
   }
 

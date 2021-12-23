@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -39,7 +40,10 @@ public class ExampleApplication {
     public SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http, TokenProvider tokenFilter) {
 		return http
 			.httpBasic().disable()
-			.exceptionHandling().authenticationEntryPoint((exchange, exception) -> Mono.empty()).and()
+			.exceptionHandling().authenticationEntryPoint((exchange, exception) -> {
+				exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+				return Mono.empty();
+			}).and()
 			.csrf().disable()
 			.authorizeExchange()
 				.pathMatchers("/", "/*.html", "/*.js", "/*.css").permitAll()
