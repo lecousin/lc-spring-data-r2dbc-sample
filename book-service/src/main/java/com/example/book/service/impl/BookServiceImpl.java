@@ -95,18 +95,20 @@ public class BookServiceImpl implements BookService {
 					"What's Become of Waring", "When the Green Woods Laugh", "Where Angels Fear to Tread", "The Widening Gyre", "Wildfire at Midnight", "The Wind's Twelve Quarters",
 					"The Wings of the Dove", "The Wives of Bath", "The World, the Flesh and the Devil", "The Yellow Meads of Asphodel"
 				};
-				int[] years = new int[] { 1970, 2010, 1654, 1875, 1986, 1994, 1964, 1945, 1897, 2003, 2020, 1981 };
+				int[] years = new int[] { 1970, 2010, 1654, 1875, 1986, 1994, 1964, 1945, 1897, 2003, 2020, 1981, 1983, 2005, 2007 };
 				List<BookDto> books = new LinkedList<>();
 				int index = 0;
 				for (String bookName : bookNames) {
 					BookDto book = new BookDto();
 					book.setTitle(bookName);
-					if ((index % 13) != 12)
-						book.setYear(years[index % 13]);
+					if ((index % (years.length + 1)) != years.length)
+						book.setYear(years[index % (years.length + 1)]);
 					book.setAuthors(new LinkedList<>());
 					book.getAuthors().add(tuple.getT1().get(index % tuple.getT1().size()));
-					if (index >= tuple.getT1().size())
-						book.getAuthors().add(tuple.getT1().get((index + 14) % tuple.getT1().size()));
+					if (index >= tuple.getT1().size() * 2)
+						book.getAuthors().add(tuple.getT1().get((index + 1) % tuple.getT1().size()));
+					if (index >= tuple.getT1().size() * 5)
+						book.getAuthors().add(tuple.getT1().get((index + 2) % tuple.getT1().size()));
 					if ((index % 12) != 11)
 						book.setPublisher(tuple.getT2().get(index % tuple.getT2().size()));
 					books.add(book);
@@ -134,6 +136,11 @@ public class BookServiceImpl implements BookService {
 			query = query.where(Criteria.property("publisher", "name").toUpperCase().like('%' + searchRequest.getPublisherName().toUpperCase() + '%'));
 		if (searchRequest.getOffset() != null && searchRequest.getLimit() != null)
 			query = query.limit(searchRequest.getOffset(), searchRequest.getLimit());
+		if (searchRequest.getOrderBy() != null) {
+			int i = searchRequest.getOrderBy().indexOf('.');
+			if (i > 0)
+				query = query.orderBy(searchRequest.getOrderBy().substring(0, i), searchRequest.getOrderBy().substring(i + 1), searchRequest.isOrderAsc());
+		}
 		Mono<Optional<Long>> count;
 		if (searchRequest.isCountTotal())
 			count = query.executeCount(template.getLcClient()).map(Optional::of);

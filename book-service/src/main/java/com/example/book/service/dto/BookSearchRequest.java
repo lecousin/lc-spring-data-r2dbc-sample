@@ -5,6 +5,9 @@ public class BookSearchRequest {
 	private Integer offset;
 	private Integer limit;
 	private boolean countTotal = true;
+	private String orderBy = null;
+	private boolean orderAsc = true;
+	
 	private String bookTitle;
 	private String authorName;
 	private String publisherName;
@@ -33,6 +36,22 @@ public class BookSearchRequest {
 
 	public void setCountTotal(boolean countTotal) {
 		this.countTotal = countTotal;
+	}
+
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	public boolean isOrderAsc() {
+		return orderAsc;
+	}
+
+	public void setOrderAsc(boolean orderAsc) {
+		this.orderAsc = orderAsc;
 	}
 
 	public String getBookTitle() {

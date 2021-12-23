@@ -11,6 +11,9 @@ export class BookSearchRequest {
   public limit?: number;
   public countTotal = true;
 
+  public orderBy?: string;
+  public orderAsc = true;
+
   public bookTitle?: string;
   public authorName?: string;
   public publisherName?: string;

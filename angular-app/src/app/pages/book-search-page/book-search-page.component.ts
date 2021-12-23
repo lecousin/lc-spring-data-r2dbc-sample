@@ -13,7 +13,7 @@ import { BookSearchRequest, BookService } from 'src/app/service/book.service';
 })
 export class BookSearchPageComponent implements AfterViewInit {
 
-  displayedColumns = ['title', 'year', 'authors', 'publisher'];
+  displayedColumns = ['book.title', 'book.year', 'author.name', 'publisher.name'];
   isLoadingResults = true;
   filter = new BookSearchRequest();
   results$ = new BehaviorSubject<Book[]>([]);
@@ -50,6 +50,12 @@ export class BookSearchPageComponent implements AfterViewInit {
     if (this.paginator) {
       this.filter.offset = this.paginator.pageIndex * this.paginator.pageSize;
       this.filter.limit = this.paginator.pageSize;
+    }
+    if (this.sort) {
+      if (this.sort.direction != '') {
+        this.filter.orderBy = this.sort.active;
+        this.filter.orderAsc = this.sort.direction == 'asc';
+      }
     }
     this.bookService.searchBooks(this.filter).subscribe(response => {
       this.isLoadingResults = false;
