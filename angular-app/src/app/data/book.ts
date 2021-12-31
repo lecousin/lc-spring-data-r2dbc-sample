@@ -3,6 +3,7 @@ import { Publisher } from "./publisher";
 
 export class Book {
 
+  id = 0;
   title = '';
   year?: number;
   authors?: Author[];

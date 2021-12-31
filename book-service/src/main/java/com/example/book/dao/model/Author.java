@@ -20,7 +20,7 @@ public class Author {
 	@ColumnDefinition(nullable = false, max = 100)
 	private String name;
 	
-	@JoinTable(joinProperty = "authors")
+	@JoinTable(joinProperty = "authors", columnName = "author")
 	private Set<Book> books;
 
 	public String getName() {

@@ -47,7 +47,7 @@ public class ExampleApplication {
 			.csrf().disable()
 			.authorizeExchange()
 				.pathMatchers("/", "/*.html", "/*.js", "/*.css").permitAll()
-				.pathMatchers("/api/auth/v1", "/api/initdb").permitAll()
+				.pathMatchers("/api/auth/v1", "/api/initdb", "/api/initdb/**").permitAll()
 				.pathMatchers("/api/**").authenticated()
 				.and()
 			.securityContextRepository(tokenFilter)

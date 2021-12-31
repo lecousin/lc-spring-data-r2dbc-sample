@@ -6,18 +6,27 @@ import com.example.book.service.dto.BookSearchRequest;
 import com.example.book.service.dto.BookSearchResponse;
 import com.example.book.service.dto.PublisherDto;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface BookService {
-
-	Mono<BookSearchResponse> searchBooks(BookSearchRequest searchRequest);
-	
-	Mono<AuthorDto> createAuthor(AuthorDto author);
-	
-	Mono<PublisherDto> createPublisher(PublisherDto publisher);
 	
 	Mono<BookDto> createBook(BookDto book);
 	
-	Mono<Void> initDatabase();
+	Mono<BookDto> getBook(long bookId);
+
+	Mono<BookSearchResponse> searchBooks(BookSearchRequest searchRequest);
+	
+	Flux<AuthorDto> getAuthors(String name);
+	
+	Mono<AuthorDto> createAuthor(AuthorDto author);
+	
+	Flux<PublisherDto> getPublishers(String name);
+	
+	Mono<PublisherDto> createPublisher(PublisherDto publisher);
+	
+	Mono<BookDto> saveBook(BookDto book);
+	
+	Mono<Void> deleteBook(long bookId);
 	
 }

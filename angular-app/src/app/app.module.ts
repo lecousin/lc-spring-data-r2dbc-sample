@@ -1,9 +1,10 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -17,6 +18,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,6 +29,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoadingComponent } from './components/loading/loading.component';
 import { HeaderComponent } from './components/header/header.component';
 import { BookSearchPageComponent } from './pages/book-search-page/book-search-page.component';
+import { BookFormComponent } from './components/book-form/book-form.component';
+import { BookPageComponent } from './pages/book-page/book-page.component';
 
 @NgModule({
   declarations: [
@@ -35,13 +39,16 @@ import { BookSearchPageComponent } from './pages/book-search-page/book-search-pa
     MainPageComponent,
     LoadingComponent,
     HeaderComponent,
-    BookSearchPageComponent
+    BookSearchPageComponent,
+    BookFormComponent,
+    BookPageComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
@@ -55,7 +62,9 @@ import { BookSearchPageComponent } from './pages/book-search-page/book-search-pa
     MatTableModule,
     MatExpansionModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatTabsModule,
+    MatAutocompleteModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInjector, multi: true }

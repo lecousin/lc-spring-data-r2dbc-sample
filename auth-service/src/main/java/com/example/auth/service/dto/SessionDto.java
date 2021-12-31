@@ -6,6 +6,7 @@ public class SessionDto {
 
 	private UUID uuid;
 	private String username;
+	private boolean admin;
 	private long expiration;
 
 	public UUID getUuid() {
@@ -22,6 +23,14 @@ public class SessionDto {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public boolean isAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 
 	public long getExpiration() {

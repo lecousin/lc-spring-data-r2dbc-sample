@@ -91,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
 		SessionDto dto = new SessionDto();
 		dto.setUuid(session.getUuid());
 		dto.setUsername(user.getUsername());
+		dto.setAdmin(user.isAdmin());
 		dto.setExpiration(session.getExpiration().toEpochMilli());
 		return dto;
 	}

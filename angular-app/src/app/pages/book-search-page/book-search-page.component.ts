@@ -1,9 +1,11 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Book } from 'src/app/data/book';
+import { AuthService } from 'src/app/service/auth.service';
 import { BookSearchRequest, BookService } from 'src/app/service/book.service';
 
 @Component({
@@ -13,18 +15,24 @@ import { BookSearchRequest, BookService } from 'src/app/service/book.service';
 })
 export class BookSearchPageComponent implements AfterViewInit {
 
+  isAdmin: boolean;
   displayedColumns = ['book.title', 'book.year', 'author.name', 'publisher.name'];
   isLoadingResults = true;
   filter = new BookSearchRequest();
   results$ = new BehaviorSubject<Book[]>([]);
   count = 0;
+  pageSize = 10;
+  pageSizeOptions = [10, 25, 50, 100, 250, 500];
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
   constructor(
-    private bookService: BookService
+    auth: AuthService,
+    private bookService: BookService,
+    private router: Router
   ) {
+    this.isAdmin = auth.getSession$().value?.admin || false;
   }
 
   ngAfterViewInit(): void {
@@ -55,6 +63,8 @@ export class BookSearchPageComponent implements AfterViewInit {
       if (this.sort.direction != '') {
         this.filter.orderBy = this.sort.active;
         this.filter.orderAsc = this.sort.direction == 'asc';
+      } else {
+        this.filter.orderBy = undefined;
       }
     }
     this.bookService.searchBooks(this.filter).subscribe(response => {
@@ -65,8 +75,12 @@ export class BookSearchPageComponent implements AfterViewInit {
     });
   }
 
-  public resetPaging() {
-    // TODO
+  public selectBook(book: Book): void {
+    this.router.navigateByUrl('/book/' + book.id);
+  }
+
+  public newBook(): void {
+    this.router.navigateByUrl('/book/new');
   }
 
 }

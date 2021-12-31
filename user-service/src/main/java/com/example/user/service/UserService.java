@@ -15,10 +15,8 @@ public interface UserService {
 	 */
 	Mono<UserDto> checkPassword(String username, String password);
 	
-	Mono<UserDto> createUser(String username, String password);
+	Mono<UserDto> createUser(String username, String password, boolean admin);
 	
 	Mono<UserDto> getUser(String username);
-	
-	Mono<Void> initDatabase();
 	
 }

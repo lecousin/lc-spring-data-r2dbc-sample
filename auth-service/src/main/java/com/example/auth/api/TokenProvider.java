@@ -1,5 +1,6 @@
 package com.example.auth.api;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
@@ -44,7 +46,7 @@ public class TokenProvider implements ServerSecurityContextRepository {
     	})
     	.map(this::parseToken)
     	.flatMap(session -> authService.checkSession(session.getUuid(), session.getUsername()))
-    	.map(session -> new UsernamePasswordAuthenticationToken(session, null, new LinkedList<>()))
+    	.map(session -> new UsernamePasswordAuthenticationToken(session, null, session.isAdmin() ? Arrays.asList(new SimpleGrantedAuthority("ADMIN")) : new LinkedList<>()))
    		.map(SecurityContextImpl::new);
     }
 

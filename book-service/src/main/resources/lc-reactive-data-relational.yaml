@@ -1,0 +1,5 @@
+entities:
+  - com.example.book.dao.model:
+    - Author
+    - Book
+    - Publisher

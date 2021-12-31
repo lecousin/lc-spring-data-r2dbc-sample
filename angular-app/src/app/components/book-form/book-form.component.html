@@ -1,0 +1,75 @@
+<app-loading *ngIf="loadingMessage" [message]="loadingMessage"></app-loading>
+<div class="form-container" *ngIf="book">
+  <table [formGroup]="form">
+    <tr *ngIf="!isNew">
+      <th>Book id</th>
+      <td>{{book.id}}</td>
+    </tr>
+    <tr>
+      <th>Title</th>
+      <td *ngIf="!isEditing">{{book.title}}</td>
+      <td *ngIf="isEditing">
+        <mat-form-field>
+          <input id="title" name="title" matInput formControlName="title" required>
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <th>Year</th>
+      <td *ngIf="!isEditing">{{book.year}}</td>
+      <td *ngIf="isEditing">
+        <mat-form-field>
+          <input id="year" name="year" matInput formControlName="year" type="number" step="1">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <th>Authors</th>
+      <td *ngIf="!isEditing">
+        <span *ngFor="let author of book.authors; let index = index">
+          <span *ngIf="index > 0">, </span>
+          {{author.name}}
+        </span>
+      </td>
+      <td *ngIf="isEditing" formArrayName="authors">
+        <div *ngFor="let authorForm of getAuthorsFormArray().controls; let i = index;" [formGroupName]="i">
+          <mat-form-field>
+            <input matInput [matAutocomplete]="autoName" formControlName="name">
+            <mat-autocomplete #autoName="matAutocomplete">
+              <mat-option *ngFor="let author of getAuthorOptions(authorForm)" [value]="author.name">
+                <span>{{author.name}}</span>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <button mat-button color="warn" (click)="removeAuthor(i)"><mat-icon>delete</mat-icon></button>
+          <span *ngIf="!(authorForm.get('id')?.value) && authorForm.get('name')?.value?.length > 0">This new author will be created</span>
+        </div>
+        <button mat-mini-fab color="accent" (click)="newAuthor()"><mat-icon>add</mat-icon></button>
+      </td>
+    </tr>
+    <tr>
+      <th>Publisher</th>
+      <td *ngIf="!isEditing">{{book.publisher?.name}}</td>
+      <td *ngIf="isEditing" formGroupName="publisher">
+        <mat-form-field>
+          <input matInput [matAutocomplete]="autoName" formControlName="name">
+          <mat-autocomplete #autoName="matAutocomplete">
+            <mat-option *ngFor="let publisher of getPublisherOptions()" [value]="publisher.name">
+              <span>{{publisher.name}}</span>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <span *ngIf="!(getPublisherFormGroup().get('id')?.value) && getPublisherFormGroup().get('name')?.value?.length > 0">This new publisher will be created</span>
+      </td>
+    </tr>
+  </table>
+  <div *ngIf="errorMessage" class="error">{{errorMessage}}</div>
+</div>
+<div class="form-footer">
+  <div *ngIf="isAdmin" class="buttons">
+    <button *ngIf="!isEditing && isAdmin" mat-raised-button color="primary" (click)="edit()">Edit</button>
+    <button *ngIf="!isEditing && isAdmin" mat-raised-button color="warn" (click)="deleteBook()">Delete</button>
+    <button *ngIf="isEditing && isAdmin" mat-raised-button color="primary" (click)="saveBook()" [disabled]="form.invalid">Save</button>
+    <button *ngIf="isEditing && isAdmin && !isNew" mat-raised-button (click)="cancelEdit()">Cancel</button>
+  </div>
+</div>

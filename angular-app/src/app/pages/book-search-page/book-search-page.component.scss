@@ -10,11 +10,34 @@
   flex: none;
 }
 
-.table-container {
+.results-container {
   flex: 1 1 100%;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 
-  table {
-    width: 100%;
+  .table-container {
+    flex: 1 1 100%;
+    overflow: auto;
+
+    table {
+      width: 100%;
+
+      tr:hover {
+        background-color: #E8E8E8;
+      }
+    }
+  }
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+
+  mat-paginator {
+    flex: 1 1 100%;
   }
 }

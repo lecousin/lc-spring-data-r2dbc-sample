@@ -1,0 +1,3 @@
+entities:
+  - com.example.user.dao.model:
+    - User

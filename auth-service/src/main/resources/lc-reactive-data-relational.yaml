@@ -1,0 +1,3 @@
+entities:
+  - com.example.auth.dao.model:
+    - Session

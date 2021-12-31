@@ -26,7 +26,7 @@ public class Book {
 	@ColumnDefinition(nullable = true)
 	private Integer year;
 	
-	@JoinTable(joinProperty = "books")
+	@JoinTable(joinProperty = "books", columnName = "book")
 	private Set<Author> authors;
 	
 	@ForeignKey(optional = true, cascadeDelete = false, onForeignDeleted = OnForeignDeleted.SET_TO_NULL)

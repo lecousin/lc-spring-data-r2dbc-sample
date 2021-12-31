@@ -13,7 +13,10 @@ export class LoginPageComponent {
 
   username: string = "";
   password: string = "";
-  inprogress?: string;
+  signingin = false;
+  initDbTodo = 0;
+  initDbDone = 0;
+  initDbMessage?: string;
   error?: string;
   invalid = false;
 
@@ -24,7 +27,7 @@ export class LoginPageComponent {
   ) { }
 
   public signin(): void {
-    this.inprogress = 'Signing in';
+    this.signingin = true;
     this.invalid = false;
     this.service.login(this.username, this.password)
     .subscribe(ok => {
@@ -33,17 +36,43 @@ export class LoginPageComponent {
       } else {
         this.router.navigateByUrl('/');
       }
-      this.inprogress = undefined;
+      this.signingin = false;
       this.error = undefined;
     }, error => {
       this.error = error;
-      this.inprogress = undefined;
+      this.signingin = false;
     });
   }
 
   public initdb(): void {
-    this.inprogress = 'Initializing database';
-    this.http.get(environment.apiUrl + '/initdb', { responseType: 'text' }).subscribe(response => this.inprogress = undefined);
+    this.initDbMessage = 'Initializing database';
+    this.initDbTodo = 1;
+    this.initDbDone = 0;
+    this.http.get<string[]>(environment.apiUrl + '/initdb').subscribe(list => {
+      this.initDbTodo = list.length + 1;
+      this.initDbDone = 1;
+      this.initDbStep(list, 0);
+    }, error => {
+      this.error = error;
+      this.initDbMessage = undefined;
+    });
+  }
+
+  private initDbStep(list: string[], index: number) {
+    this.initDbMessage = 'Creating ' + list[index];
+    this.http.get(environment.apiUrl + '/initdb/' + list[index]).subscribe(ok => {
+      this.initDbDone++;
+      setTimeout(() => {
+        if (index == list.length - 1) {
+          this.initDbMessage = undefined;
+        } else {
+          this.initDbStep(list, index + 1);
+        }
+      }, 0);
+    }, error => {
+      this.error = error;
+      this.initDbMessage = undefined;
+    });
   }
 
 }

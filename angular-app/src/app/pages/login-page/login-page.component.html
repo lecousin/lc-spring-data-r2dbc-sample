@@ -1,4 +1,5 @@
-<app-loading *ngIf="inprogress" [message]="inprogress"></app-loading>
+<app-loading *ngIf="signingin" message="Signing in"></app-loading>
+<app-loading *ngIf="initDbMessage" [message]="initDbMessage" [todo]="initDbTodo" [done]="initDbDone" type="progress"></app-loading>
 <mat-card>
   <mat-card-header>
     <mat-card-title>Identification</mat-card-title>
