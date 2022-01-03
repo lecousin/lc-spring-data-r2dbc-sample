@@ -44,7 +44,7 @@
           <button mat-button color="warn" (click)="removeAuthor(i)"><mat-icon>delete</mat-icon></button>
           <span *ngIf="!(authorForm.get('id')?.value) && authorForm.get('name')?.value?.length > 0">This new author will be created</span>
         </div>
-        <button mat-mini-fab color="accent" (click)="newAuthor()"><mat-icon>add</mat-icon></button>
+        <button mat-button color="primary" (click)="newAuthor()"><mat-icon>add</mat-icon> Add author</button>
       </td>
     </tr>
     <tr>

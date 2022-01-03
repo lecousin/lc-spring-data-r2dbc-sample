@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,7 @@ import com.example.user.service.UserService;
 import com.example.user.service.dto.UserDto;
 
 import net.lecousin.reactive.data.relational.repository.LcR2dbcEntityTemplate;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
@@ -48,6 +50,48 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Mono<UserDto> getUser(String username) {
 		return userRepo.findByUsername(username).map(UserDto::fromEntity);
+	}
+	
+	@Override
+	public Mono<UserDto> getUser(long userId) {
+		return userRepo.findById(userId).map(UserDto::fromEntity);
+	}
+	
+	@Override
+	public Flux<UserDto> getUsers() {
+		return userRepo.findAll().map(UserDto::fromEntity);
+	}
+	
+	@Override
+	public Mono<UserDto> changePassword(String username, String newPassword) {
+		return userRepo.findByUsername(username)
+			.doOnNext(user -> user.setPassword(encrypt(newPassword)))
+			.flatMap(userRepo::save)
+			.map(UserDto::fromEntity);
+	}
+	
+	private static final char[] generatePasswordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,;.:!+=()[]".toCharArray();
+	
+	@Override
+	public Mono<String> resetPassword(long userId) {
+		return userRepo.findById(userId)
+			.flatMap(user -> {
+				Random random = new Random();
+				StringBuilder s = new StringBuilder(10);
+				for (int i = 0; i < 10; ++i)
+					s.append(generatePasswordChars[random.nextInt(generatePasswordChars.length)]);
+				String generatedPassword = s.toString();
+				user.setPassword(encrypt(generatedPassword));
+				return userRepo.save(user).thenReturn(generatedPassword);
+			});
+	}
+	
+	@Override
+	public Mono<UserDto> setAdministrator(long userId, boolean admin) {
+		return userRepo.findById(userId)
+			.doOnNext(user -> user.setAdmin(admin))
+			.flatMap(userRepo::save)
+			.map(UserDto::fromEntity);
 	}
 	
 	private static String encrypt(String clear) {

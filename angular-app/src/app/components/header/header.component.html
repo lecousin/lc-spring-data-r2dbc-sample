@@ -19,6 +19,10 @@
       {{ username }} <span *ngIf="isAdmin">(Administrator)</span>
     </div>
     <mat-divider></mat-divider>
+    <button mat-menu-item (click)="account()">
+      <mat-icon>badge</mat-icon>
+      <span>My Account</span>
+    </button>
     <button mat-menu-item (click)="logout()">
       <mat-icon>exit_to_app</mat-icon>
       <span>Sign out</span>

@@ -32,6 +32,9 @@ export class HeaderComponent {
     this.menu = [
       new MenuItem('Books', '/book')
     ];
+    if (this.isAdmin) {
+      this.menu.push(new MenuItem('Users', '/user'));
+    }
   }
 
   public isActive(item: MenuItem): boolean {
@@ -43,6 +46,10 @@ export class HeaderComponent {
 
   public logout(): void {
     this.auth.logout();
+  }
+
+  public account(): void {
+    this.router.navigateByUrl('/user/me');
   }
 
 }

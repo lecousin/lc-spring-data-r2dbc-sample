@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,8 @@ import reactor.util.function.Tuples;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 	
 	@Autowired
 	private UserService userService;
@@ -61,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
 		.flatMap(session -> {
 			if (!session.getUsername().equals(username) || session.getExpiration().isBefore(Instant.now()))
 				return Mono.empty();
+			logger.info("Session accepted for user {}", username);
 			return userService.getUser(username)
 				.map(user -> Tuples.of(session, user));
 		}).map(tuple -> createDto(tuple.getT1(), tuple.getT2()));
@@ -71,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
 		return sessionRepo.findById(session.getUuid())
 			.flatMap(s -> {
 				s.setExpiration(Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES));
+				logger.info("Session renewed for user {}", session.getUsername());
 				return sessionRepo.save(s);
 			}).map(s -> updateDto(session, s));
 	}
@@ -84,6 +90,7 @@ public class AuthServiceImpl implements AuthService {
 		Session session = new Session();
 		session.setUsername(user.getUsername());
 		session.setExpiration(Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES));
+		logger.info("Session created for user {}", user.getUsername());
 		return sessionRepo.save(session);
 	}
 	

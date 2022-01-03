@@ -1,12 +1,11 @@
 package com.example.auth.api;
 
-import java.security.Principal;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,13 +38,23 @@ public class AuthController {
 	}
 	
 	@GetMapping(produces = "text/plain")
-	public Mono<String> renew(Mono<Principal> principal) {
-		return principal.flatMap(p -> authService.renewSession((SessionDto)((UsernamePasswordAuthenticationToken)p).getPrincipal())).map(tokenProvider::generateToken);
+	public Mono<String> renew(Authentication auth) {
+		return Mono.defer(() -> {
+			UsernamePasswordAuthenticationToken a = (UsernamePasswordAuthenticationToken) auth;
+			SessionDto session = (SessionDto) a.getCredentials();
+			return authService.renewSession(session);
+		}).map(tokenProvider::generateToken);
 	}
 	
 	@DeleteMapping
-	public Mono<Void> logout(Mono<Principal> principal) {
-		return principal.flatMap(p -> authService.closeSession((SessionDto)((UsernamePasswordAuthenticationToken)p).getPrincipal()));
+	public Mono<Void> logout(Authentication auth) {
+		if (auth == null)
+			return Mono.empty();
+		return Mono.defer(() -> {
+			UsernamePasswordAuthenticationToken a = (UsernamePasswordAuthenticationToken) auth;
+			SessionDto session = (SessionDto) a.getCredentials();
+			return authService.closeSession(session);
+		});
 	}
 
 }

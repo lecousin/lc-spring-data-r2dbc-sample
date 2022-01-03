@@ -16,6 +16,14 @@
     <input matInput [(ngModel)]="filter.bookTitle" (ngModelChange)="criteriaUpdated()">
   </mat-form-field>
   <mat-form-field>
+    <mat-label>Book year from</mat-label>
+    <input matInput type="number" step="1" [(ngModel)]="filter.yearFrom" (ngModelChange)="criteriaUpdated()">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Book year to</mat-label>
+    <input matInput type="number" step="1" [(ngModel)]="filter.yearTo" (ngModelChange)="criteriaUpdated()">
+  </mat-form-field>
+  <mat-form-field>
     <mat-label>Author name</mat-label>
     <input matInput [(ngModel)]="filter.authorName" (ngModelChange)="criteriaUpdated()">
   </mat-form-field>

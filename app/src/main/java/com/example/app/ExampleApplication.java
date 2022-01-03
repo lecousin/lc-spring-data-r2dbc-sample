@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -29,6 +30,7 @@ import reactor.core.publisher.Mono;
 @SpringBootApplication
 @ComponentScan("com.example")
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity()
 public class ExampleApplication {
 
 	public static void main(String[] args) {

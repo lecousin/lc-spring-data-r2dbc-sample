@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +32,9 @@ import { HeaderComponent } from './components/header/header.component';
 import { BookSearchPageComponent } from './pages/book-search-page/book-search-page.component';
 import { BookFormComponent } from './components/book-form/book-form.component';
 import { BookPageComponent } from './pages/book-page/book-page.component';
+import { UsersPageComponent } from './pages/users-page/users-page.component';
+import { UserFormComponent } from './components/user-form/user-form.component';
+import { UserPageComponent } from './pages/user-page/user-page.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +45,10 @@ import { BookPageComponent } from './pages/book-page/book-page.component';
     HeaderComponent,
     BookSearchPageComponent,
     BookFormComponent,
-    BookPageComponent
+    BookPageComponent,
+    UsersPageComponent,
+    UserFormComponent,
+    UserPageComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +71,8 @@ import { BookPageComponent } from './pages/book-page/book-page.component';
     MatPaginatorModule,
     MatSortModule,
     MatTabsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatCheckboxModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInjector, multi: true }
